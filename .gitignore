@@ -1,0 +1,20 @@
+# --- Virtual environment ---
+venv/
+
+# --- Dataset (140k images, too large for git) ---
+datasets/
+
+# --- Saved models ---
+model/
+
+# --- Generated outputs (plots, heatmaps) ---
+outputs/
+
+# --- Python cache ---
+__pycache__/
+*.pyc
+
+# --- Jupyter / IDE ---
+.ipynb_checkpoints/
+.vscode/
+.idea/

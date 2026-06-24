@@ -1,0 +1,27 @@
+# PixelTruth — dependencies
+# PyTorch CUDA 12.4 build (RTX 3050, Windows native GPU)
+--extra-index-url https://download.pytorch.org/whl/cu124
+
+# --- Deep learning core ---
+torch==2.6.0+cu124
+torchvision==0.21.0+cu124
+
+# --- Data & numerics ---
+numpy
+pillow                # image loading
+
+# --- Metrics & evaluation ---
+scikit-learn          # confusion matrix, ROC, classification report
+
+# --- Plots ---
+matplotlib
+seaborn               # confusion matrix heatmap
+
+# --- Training UX ---
+tqdm                  # progress bars
+
+# --- Interpretability ---
+grad-cam              # Grad-CAM heatmaps
+
+# --- Demo ---
+gradio                # drag-and-drop predict UI
