@@ -1,16 +1,16 @@
 """
-PixelTruth — training engine.
+PixelTruth - training engine.
 
-Chalane ke tarike:
+How to run:
     python -m src.train --model custom            # baseline CNN
-    python -m src.train --model efficientnet      # transfer learning (2 phase)
+    python -m src.train --model efficientnet      # transfer learning (2 phases)
     python -m src.train --model efficientnet --epochs-head 3 --epochs-ft 8
 
 Features:
-  - Mixed precision (AMP) GPU pe — fast training
-  - EarlyStopping (val_loss improve na ho to ruk jao)
-  - ReduceLROnPlateau (atak gaye to lr aadha)
-  - Best model checkpoint (sabse achha val_loss wala save)
+  - Mixed precision (AMP) on GPU - faster training
+  - EarlyStopping (stop when val_loss stops improving)
+  - ReduceLROnPlateau (halve lr when stuck)
+  - Best-model checkpoint (saves the lowest val_loss weights)
 """
 import argparse
 import copy
@@ -26,7 +26,7 @@ from . import utils
 
 
 # ----------------------------------------------------------------------
-# Ek epoch train karo
+# Train one epoch
 # ----------------------------------------------------------------------
 def train_one_epoch(model, loader, criterion, optimizer, scaler, epoch_desc,
                     max_batches=None):
@@ -84,14 +84,14 @@ def evaluate(model, loader, criterion, max_batches=None):
 
 
 # ----------------------------------------------------------------------
-# fit() — poora training loop with callbacks
+# fit() - full training loop with callbacks
 # ----------------------------------------------------------------------
 def fit(model, train_loader, valid_loader, optimizer, epochs,
         save_path, phase_name="train", history=None, max_batches=None):
     criterion = nn.BCEWithLogitsLoss()
     scaler = torch.amp.GradScaler(enabled=cfg.USE_AMP)
 
-    # ReduceLROnPlateau — val_loss atak jaye to lr aadha
+    # ReduceLROnPlateau - halve lr when val_loss stalls
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=cfg.LR_FACTOR, patience=cfg.LR_PATIENCE,
     )
@@ -133,7 +133,7 @@ def fit(model, train_loader, valid_loader, optimizer, epochs,
                   f"{cfg.EARLY_STOP_PATIENCE} epochs)")
             break
 
-    # best weights restore karo (restore_best_weights=True jaisa)
+    # Restore best weights (like restore_best_weights=True)
     model.load_state_dict(best_weights)
     return history
 
@@ -154,7 +154,7 @@ def train_custom(train_loader, valid_loader, epochs, max_batches=None):
 
 def train_efficientnet(train_loader, valid_loader, epochs_head, epochs_ft,
                        max_batches=None):
-    # --- Phase 1: feature extraction (base frozen, head train) ---
+    # --- Phase 1: feature extraction (base frozen, train head) ---
     print("\n========== PHASE 1: Feature Extraction (base frozen) ==========")
     model = models_mod.build_efficientnet(freeze_base=True)
     opt1 = torch.optim.Adam(
@@ -184,15 +184,15 @@ def train_efficientnet(train_loader, valid_loader, epochs_head, epochs_ft,
 def main():
     parser = argparse.ArgumentParser(description="Train PixelTruth models")
     parser.add_argument("--model", choices=["custom", "efficientnet"],
-                        required=True, help="kaunsa model train karna hai")
+                        required=True, help="which model to train")
     parser.add_argument("--epochs", type=int, default=cfg.EPOCHS_HEAD,
-                        help="custom CNN ke liye epochs")
+                        help="epochs for the custom CNN")
     parser.add_argument("--epochs-head", type=int, default=cfg.EPOCHS_HEAD,
                         help="efficientnet phase 1 epochs")
     parser.add_argument("--epochs-ft", type=int, default=cfg.EPOCHS_FINETUNE,
                         help="efficientnet phase 2 (fine-tune) epochs")
     parser.add_argument("--max-batches", type=int, default=None,
-                        help="per epoch sirf itne batches (smoke test ke liye)")
+                        help="only this many batches per epoch (for smoke tests)")
     args = parser.parse_args()
 
     utils.set_seed()
