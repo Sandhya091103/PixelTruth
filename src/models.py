@@ -1,12 +1,12 @@
 """
-PixelTruth — model architectures.
+PixelTruth - model architectures.
 
-Do models:
-  1. build_custom_cnn()    -> scratch se CNN (baseline)
+Two models:
+  1. build_custom_cnn()    -> CNN from scratch (baseline)
   2. build_efficientnet()  -> EfficientNetB0 transfer learning (production)
 
-Dono ka output: 1 logit (BCEWithLogitsLoss ke liye — sigmoid loss ke andar
-lagta hai, numerically stable). Probability chahiye to torch.sigmoid(logit).
+Both output a single logit (for BCEWithLogitsLoss - sigmoid is applied inside
+the loss, which is numerically stable). For a probability use torch.sigmoid(logit).
 """
 import torch
 import torch.nn as nn
@@ -16,7 +16,7 @@ from . import config as cfg
 
 
 # ======================================================================
-# 1. Custom CNN  (baseline — scratch se)
+# 1. Custom CNN  (baseline - from scratch)
 # ======================================================================
 class CustomCNN(nn.Module):
     """
@@ -36,7 +36,7 @@ class CustomCNN(nn.Module):
                 nn.Conv2d(in_c, out_c, kernel_size=3, padding=1),
                 nn.BatchNorm2d(out_c),
                 nn.ReLU(inplace=True),
-                nn.MaxPool2d(2),           # H,W aadha
+                nn.MaxPool2d(2),           # halves H, W
             )
 
         self.features = nn.Sequential(
@@ -60,7 +60,7 @@ class CustomCNN(nn.Module):
 
 
 def build_custom_cnn():
-    """Custom CNN instance device pe return karta hai."""
+    """Return a Custom CNN instance on the configured device."""
     model = CustomCNN().to(cfg.DEVICE)
     return model
 
@@ -70,22 +70,22 @@ def build_custom_cnn():
 # ======================================================================
 def build_efficientnet(freeze_base=True):
     """
-    EfficientNetB0 (ImageNet pretrained) + apna binary head.
+    EfficientNetB0 (ImageNet pretrained) + our binary head.
 
     freeze_base=True  -> Phase 1 (feature extraction): base frozen,
-                         sirf naya head train hoga.
-    Baad me fine-tuning ke liye unfreeze_top() use karna.
+                         only the new head trains.
+    For fine-tuning later, use unfreeze_top().
     """
-    # ImageNet weights ke saath base load karo
+    # Load the base with ImageNet weights
     weights = models.EfficientNet_B0_Weights.IMAGENET1K_V1
     model = models.efficientnet_b0(weights=weights)
 
-    # --- Phase 1: poora base freeze ---
+    # --- Phase 1: freeze the whole base ---
     if freeze_base:
         for param in model.features.parameters():
             param.requires_grad = False
 
-    # --- Purana 1000-class head hatao, apna binary head lagao ---
+    # --- Drop the old 1000-class head, attach our binary head ---
     # efficientnet_b0.classifier = Sequential(Dropout, Linear(1280, 1000))
     in_features = model.classifier[1].in_features          # 1280
     model.classifier = nn.Sequential(
@@ -101,16 +101,16 @@ def build_efficientnet(freeze_base=True):
 
 def unfreeze_top(model, last_n=cfg.UNFREEZE_LAST_N):
     """
-    Phase 2 (fine-tuning): base ke aakhri `last_n` layers unfreeze karo.
-    BatchNorm layers ko frozen + eval mode me rakho (transfer learning best practice).
+    Phase 2 (fine-tuning): unfreeze the base's last `last_n` layers.
+    Keep BatchNorm layers frozen + in eval mode (transfer-learning best practice).
     """
-    # features ek nn.Sequential hai — uske children unfreeze karo
+    # features is an nn.Sequential - unfreeze its last children
     feature_blocks = list(model.features.children())
     for block in feature_blocks[-last_n:]:
         for param in block.parameters():
             param.requires_grad = True
 
-    # BatchNorm layers frozen rakho (running stats na bigden)
+    # Keep BatchNorm layers frozen (so running stats don't get corrupted)
     for module in model.features.modules():
         if isinstance(module, nn.BatchNorm2d):
             module.eval()
@@ -121,7 +121,7 @@ def unfreeze_top(model, last_n=cfg.UNFREEZE_LAST_N):
 
 
 # ----------------------------------------------------------------------
-# Helper: kitne params trainable hain (sanity check ke liye)
+# Helper: how many params are trainable (for a sanity check)
 # ----------------------------------------------------------------------
 def count_params(model):
     total     = sum(p.numel() for p in model.parameters())

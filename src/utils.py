@@ -1,5 +1,5 @@
 """
-PixelTruth — chhote helpers (seed, device info, plotting).
+PixelTruth - small helpers (seed, device info, plotting).
 """
 import random
 import numpy as np
@@ -10,7 +10,7 @@ from . import config as cfg
 
 
 def set_seed(seed=cfg.SEED):
-    """Reproducibility — har run pe same result."""
+    """Reproducibility - same result on every run."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -18,7 +18,7 @@ def set_seed(seed=cfg.SEED):
 
 
 def device_info():
-    """GPU/CPU info print karo."""
+    """Print GPU/CPU info."""
     print(f"Device: {cfg.DEVICE}")
     if cfg.DEVICE.type == "cuda":
         print(f"GPU:    {torch.cuda.get_device_name(0)}")
@@ -27,7 +27,7 @@ def device_info():
 
 def plot_history(history, title, save_path):
     """
-    Training curves — loss + accuracy (train vs valid).
+    Training curves - loss + accuracy (train vs valid).
     history: dict with keys train_loss, val_loss, train_acc, val_acc (lists).
     """
     epochs = range(1, len(history["train_loss"]) + 1)

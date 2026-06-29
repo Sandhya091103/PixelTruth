@@ -1,13 +1,13 @@
 """
-PixelTruth — central configuration.
+PixelTruth - central configuration.
 
-Saari settings ek hi jagah. Kahin aur kuch hardcode nahi karna —
-path/size/batch/lr badalna ho to sirf yahan badlo.
+All settings live here. Don't hardcode anything elsewhere - to change a
+path/size/batch/lr, change it only here.
 """
 from pathlib import Path
 
 # ----------------------------------------------------------------------
-# Paths  (project root ke relative — kahin se bhi chalao, kaam karega)
+# Paths  (relative to project root - works from anywhere)
 # ----------------------------------------------------------------------
 ROOT_DIR    = Path(__file__).resolve().parent.parent      # PixelTruth/
 DATA_DIR    = ROOT_DIR / "datasets" / "real-vs-fake"      # actual dataset path
@@ -18,7 +18,7 @@ TEST_DIR    = DATA_DIR / "test"
 MODEL_DIR   = ROOT_DIR / "model"                          # saved models
 OUTPUT_DIR  = ROOT_DIR / "outputs"                        # plots, heatmaps
 
-# Banao agar exist nahi karte (datasets/ ko nahi chhedte — wo already hai)
+# Create if missing (we never touch datasets/ - it already exists)
 MODEL_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -32,9 +32,9 @@ NUM_CLASSES = 1                     # binary -> single sigmoid output
 # ----------------------------------------------------------------------
 # Image settings
 # ----------------------------------------------------------------------
-IMG_SIZE = 224                      # EfficientNetB0 ka native input (224x224)
+IMG_SIZE = 224                      # EfficientNetB0 native input (224x224)
 
-# ImageNet normalization stats (pretrained models inhi pe trained hain)
+# ImageNet normalization stats (pretrained models were trained on these)
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD  = [0.229, 0.224, 0.225]
 
@@ -44,18 +44,18 @@ IMAGENET_STD  = [0.229, 0.224, 0.225]
 BATCH_SIZE   = 32
 NUM_WORKERS  = 4                    # DataLoader parallel loading (Windows-safe)
 
-# Phase 1 — feature extraction (base frozen, sirf head train)
+# Phase 1 - feature extraction (base frozen, train head only)
 LR_HEAD      = 1e-3
 EPOCHS_HEAD  = 5
 
-# Phase 2 — fine-tuning (top layers unfrozen, low lr)
+# Phase 2 - fine-tuning (top layers unfrozen, low lr)
 LR_FINETUNE      = 1e-5
 EPOCHS_FINETUNE  = 10
-UNFREEZE_LAST_N  = 30              # base ke aakhri kitne blocks unfreeze karne hain
+UNFREEZE_LAST_N  = 30              # how many of the base's last blocks to unfreeze
 
 # Callbacks / training control
-EARLY_STOP_PATIENCE  = 5           # itne epoch improve na ho to ruk jao
-LR_PATIENCE          = 3           # itne epoch baad lr aadha karo
+EARLY_STOP_PATIENCE  = 5           # stop if no improvement for this many epochs
+LR_PATIENCE          = 3           # halve lr after this many stagnant epochs
 LR_FACTOR            = 0.5
 
 # ----------------------------------------------------------------------
@@ -66,7 +66,7 @@ SEED = 42
 import torch
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Mixed precision (GPU pe fast training) — GPU available ho to hi on
+# Mixed precision (faster training on GPU) - only on if GPU is available
 USE_AMP = torch.cuda.is_available()
 
 # ----------------------------------------------------------------------
