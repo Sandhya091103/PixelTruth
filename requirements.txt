@@ -1,27 +1,36 @@
-# PixelTruth — dependencies
-# PyTorch CUDA 12.4 build (RTX 3050, Windows native GPU)
---extra-index-url https://download.pytorch.org/whl/cu124
+# PixelTruth dependencies.
+#
+# Configured for DEPLOYMENT on CPU-only hosts (Streamlit Community Cloud,
+# Hugging Face Spaces). PyTorch is pulled from the official CPU wheel index, so
+# torch/torchvision resolve to CPU builds; everything else comes from PyPI.
+#
+# For LOCAL GPU training instead, install the CUDA build:
+#   pip install torch==2.6.0+cu124 torchvision==0.21.0+cu124 \
+#       --extra-index-url https://download.pytorch.org/whl/cu124
 
-# --- Deep learning core ---
-torch==2.6.0+cu124
-torchvision==0.21.0+cu124
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
+
+# --- Deep learning core (CPU build) ---
+torch
+torchvision
 
 # --- Data & numerics ---
 numpy
-pillow                # image loading
+pillow
 
 # --- Metrics & evaluation ---
-scikit-learn          # confusion matrix, ROC, classification report
+scikit-learn
 
 # --- Plots ---
 matplotlib
-seaborn               # confusion matrix heatmap
+seaborn
 
 # --- Training UX ---
-tqdm                  # progress bars
+tqdm
 
 # --- Interpretability ---
-grad-cam              # Grad-CAM heatmaps
+grad-cam
 
 # --- Demo ---
-streamlit             # drag-and-drop predict web app
+streamlit
