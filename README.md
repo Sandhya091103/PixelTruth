@@ -2,6 +2,15 @@
 
 > An end-to-end deep learning system that detects whether a human face image is **Real** or **AI-generated (deepfake)**. Built with PyTorch using a custom CNN baseline and **EfficientNetB0 transfer learning**, reaching **99.45% test accuracy** and **0.9998 ROC-AUC** on 20,000 held-out images.
 
+### 🔗 **[Try the live demo →](https://pixeltruthh.streamlit.app/)**
+
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pixeltruthh.streamlit.app/)
+
+> Upload a face image and get a Real / Fake prediction with a confidence score.
+> Tip: this model was trained on **StyleGAN** fakes — for a true "FAKE" result,
+> test it with StyleGAN-generated faces (e.g. from
+> [thispersondoesnotexist.com](https://thispersondoesnotexist.com)).
+
 ---
 
 ## 📌 Table of Contents
@@ -341,6 +350,10 @@ python -m src.misclassify --per-group 5
 A **Streamlit** web app: upload a face image → get **Real / Fake + confidence**,
 with an optional **Grad-CAM** overlay.
 
+**🔗 Live app: [pixeltruthh.streamlit.app](https://pixeltruthh.streamlit.app/)**
+
+To run it locally:
+
 ```bash
 python app.py
 ```
@@ -396,7 +409,8 @@ Two things to adjust for cloud deployment:
 > **EfficientNetB0 transfer learning** on 140K real / AI-generated face images.
 > Achieved **99.45% test accuracy** with an **AUC of 0.9998**. Implemented two-phase
 > fine-tuning, mixed-precision training, and **Grad-CAM** visualizations to interpret
-> model decisions, plus a Streamlit demo for live inference.
+> model decisions, and **deployed a live Streamlit web app**
+> ([pixeltruthh.streamlit.app](https://pixeltruthh.streamlit.app/)) for real-time inference.
 
 ---
 
