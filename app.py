@@ -31,11 +31,18 @@ def main():
     from PIL import Image
     from torchvision import transforms
 
-    from pytorch_grad_cam import GradCAM
-    from pytorch_grad_cam.utils.image import show_cam_on_image
-
     from src import config as cfg
     from src import models as models_mod
+
+    # Grad-CAM is optional: it pulls in OpenCV, which needs system libs that may
+    # be missing on some hosts. If it cannot load, the app still predicts - it
+    # just hides the heatmap feature instead of crashing.
+    try:
+        from pytorch_grad_cam import GradCAM
+        from pytorch_grad_cam.utils.image import show_cam_on_image
+        GRADCAM_AVAILABLE = True
+    except Exception:
+        GRADCAM_AVAILABLE = False
 
     # Guard against a known PyTorch + Streamlit watcher crash on torch.classes.
     try:
@@ -97,8 +104,13 @@ def main():
 
     with st.sidebar:
         st.header("Options")
-        show_cam = st.checkbox("Show Grad-CAM heatmap", value=True,
-                               help="Highlights the regions the model focused on.")
+        if GRADCAM_AVAILABLE:
+            show_cam = st.checkbox(
+                "Show Grad-CAM heatmap", value=True,
+                help="Highlights the regions the model focused on.")
+        else:
+            show_cam = False
+            st.caption("Grad-CAM unavailable on this host.")
         st.caption(f"Device: {cfg.DEVICE}")
 
     uploaded = st.file_uploader("Choose a face image",
