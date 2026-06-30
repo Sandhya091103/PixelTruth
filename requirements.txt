@@ -24,4 +24,4 @@ tqdm                  # progress bars
 grad-cam              # Grad-CAM heatmaps
 
 # --- Demo ---
-gradio                # drag-and-drop predict UI
+streamlit             # drag-and-drop predict web app

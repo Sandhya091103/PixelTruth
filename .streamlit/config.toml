@@ -1,0 +1,6 @@
+# Streamlit config for PixelTruth.
+# fileWatcherType = "none": PyTorch's torch.classes module crashes Streamlit's
+# default source watcher (a known PyTorch + Streamlit incompatibility). The demo
+# does not need hot-reload, so we disable the watcher to keep the app stable.
+[server]
+fileWatcherType = "none"
